@@ -1,0 +1,140 @@
+{% load static %}
+<form method="POST" action="{% url 'equipo:editar_equipo' equipo.id_equipo %}"
+    hx-post="{% url 'equipo:editar_equipo' equipo.id_equipo %}" hx-target="#dynamic-content" hx-swap="innerHTML"
+    class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+    {% csrf_token %}
+
+    <!-- AEC -->
+    <div>
+        <label class="block text-sm font-medium">AEC</label>
+        <input type="text" name="aec" value="{{ equipo.aec }}" class="w-full border rounded px-3 py-2" required>
+    </div>
+
+    <!-- Sistema Operativo -->
+    <div>
+        <label class="block text-sm font-medium">Sistema Operativo</label>
+        <input type="text" name="so" value="{{ equipo.so }}" class="w-full border rounded px-3 py-2" required>
+    </div>
+
+    <!-- Procesador -->
+    <div>
+        <label class="block text-sm font-medium">Procesador</label>
+        <input type="text" name="procesador" value="{{ equipo.procesador }}" class="w-full border rounded px-3 py-2"
+            required>
+    </div>
+
+    <!-- Tipo RAM -->
+    <div>
+        <label class="block text-sm font-medium">Tipo RAM</label>
+        <input type="text" name="tipo_ram" value="{{ equipo.tipo_ram }}" class="w-full border rounded px-3 py-2"
+            required>
+    </div>
+
+    <!-- RAM -->
+    <div>
+        <label class="block text-sm font-medium">RAM</label>
+        <input type="text" name="ram" value="{{ equipo.ram }}" class="w-full border rounded px-3 py-2" required>
+    </div>
+
+    <!-- Tipo Disco -->
+    <div>
+        <label class="block text-sm font-medium">Tipo Disco</label>
+        <input type="text" name="tipo_disco" value="{{ equipo.tipo_disco }}" class="w-full border rounded px-3 py-2"
+            required>
+    </div>
+
+    <!-- Disco -->
+    <div>
+        <label class="block text-sm font-medium">Disco</label>
+        <input type="text" name="disco" value="{{ equipo.disco }}" class="w-full border rounded px-3 py-2" required>
+    </div>
+
+    <!-- Estado Disco -->
+    <div>
+        <label class="block text-sm font-medium">Estado Disco</label>
+        <input type="text" name="estado_disco" value="{{ equipo.estado_disco }}" class="w-full border rounded px-3 py-2"
+            required>
+    </div>
+
+    <!-- Observaciones -->
+    <div>
+        <label class="block text-sm font-medium">Observaciones</label>
+        <input type="text" name="observaciones" value="{{ equipo.observaciones }}"
+            class="w-full border rounded px-3 py-2" required>
+    </div>
+
+    <!-- IP -->
+    <div>
+        <label class="block text-sm font-medium">IP</label>
+        <input type="text" name="ip" value="{{ equipo.ip }}" class="w-full border rounded px-3 py-2" required>
+    </div>
+
+    <!-- RESPONSABLE -->
+    <div class="relative inline-block w-full user-dropdown">
+        <label class="block text-sm font-medium mb-1">Usuario asignado</label>
+
+        <!-- Botón -->
+        <button type="button"
+            class="user-btn w-full flex justify-between items-center bg-gray-100 border border-gray-300 rounded px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200 transition">
+            <span class="user-texto">
+                {% if form.instance.id_users %}
+                {{ form.instance.id_users.nombre }} {{ form.instance.id_users.apellido_p }}
+                {% else %}
+                Seleccionar usuario
+                {% endif %}
+            </span>
+            <i class="fa-solid fa-chevron-down ml-2 text-gray-500"></i>
+        </button>
+
+        <!-- Menú desplegable -->
+        <div
+            class="user-menu hidden absolute left-0 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg z-50 max-h-60 overflow-y-auto">
+            {% for u in usuarios %}
+            <button type="button" data-id="{{ u.id }}" data-nombre="{{ u.nombre }} {{ u.apellido_p }}"
+                class="w-full text-left px-4 py-2 hover:bg-blue-100 text-gray-700">
+                {{ u.nombre }} {{ u.apellido_p }}
+            </button>
+            {% empty %}
+            <p class="px-4 py-2 text-gray-400 text-sm">No hay usuarios activos</p>
+            {% endfor %}
+        </div>
+
+        <!-- Campo oculto -->
+        <input type="hidden" name="id_users" value="{{ form.instance.id_users.id|default:'' }}">
+    </div>
+
+    <!-- Estado Equipo Dropdown -->
+    <div class="estado-dropdown relative inline-block w-full">
+        <label class="block text-sm font-medium mb-1">Estado Equipo</label>
+
+        <button type="button"
+            class="estado-btn w-full flex justify-between items-center bg-gray-100 border border-gray-300 rounded px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200 transition">
+            <span class="estado-texto">{{ form.instance.estado_equipo|default:"Seleccionar estado" }}</span>
+            <i class="fa-solid fa-chevron-down ml-2 text-gray-500"></i>
+        </button>
+
+        <div
+            class="estado-menu hidden absolute left-0 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg z-50">
+            <button type="button" data-estado="ACTIVO"
+                class="w-full text-left px-4 py-2 text-green-600 hover:bg-green-100">ACTIVO</button>
+            <button type="button" data-estado="MANTENIMIENTO"
+                class="w-full text-left px-4 py-2 text-yellow-600 hover:bg-yellow-100">MANTENIMIENTO</button>
+            <button type="button" data-estado="INACTIVO"
+                class="w-full text-left px-4 py-2 text-red-600 hover:bg-red-100">INACTIVO</button>
+        </div>
+
+        <input type="hidden" name="estado_equipo" value="{{ form.instance.estado_equipo }}">
+    </div>
+
+
+    <!-- Botones Guardar / Cancelar -->
+    <div class="md:col-span-2 flex justify-end space-x-2 pt-4">
+        <button type="button" class="px-4 py-2 rounded border" onclick="closeModal('editar_equipo')">Cancelar</button>
+        <button type="submit" class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">Guardar
+            Cambios</button>
+    </div>
+
+</form>
+
+<script src="{% static 'js/equipo/equipo.js'%}"></script>

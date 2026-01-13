@@ -1,0 +1,270 @@
+{% load static %}
+<!-- Sidebar -->
+<aside id="sidebar"
+    class="fixed left-0 top-0 h-full bg-gray-800 text-gray-200 shadow-md w-64 transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-50 flex flex-col">
+
+    <div class="flex flex-col h-full">
+
+        <!-- Botón colapsar/expandir (solo desktop) -->
+        <button id="collapse-btn" class="hidden md:block self-end m-2 p-2 text-gray-400 hover:bg-gray-700 rounded">
+            <!-- Icono de cerrar -->
+            <svg id="collapse-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+
+        <!-- Perfil -->
+        <div id="profile-section" class="flex flex-col items-center mb-6 px-4">
+            <img id="sidebar-avatar" src="{% static 'images/pc2.png' %}" alt="Avatar"
+                class="w-24 h-24 rounded-full border-2 border-blue-500 mb-2">
+        </div>
+
+        <!-- Menú principal -->
+        <nav class="flex flex-col space-y-2 px-2 flex-grow">
+            <h1 class="text-xl font-semibold text-center font-bold">Panel de Control</h1>
+
+            {% if request.user.role == 'admin' %}
+            <li>
+                <!-- Botón principal del menú -->
+                <button
+                    class="flex items-center justify-between w-full px-3 py-2 rounded-md hover:bg-gray-600 cursor-pointer agenda-toggle">
+                    <span class="flex items-center">
+                        <img src="{% static 'images/pc.png' %}" class="w-6 h-6 mr-2"> Usuarios
+                    </span>
+                    <!-- Flecha para indicar submenú -->
+                    <svg class="w-4 h-4 transform transition-transform duration-300" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+
+                <ul class="ml-6 mt-1 space-y-1 hidden agenda-submenu">
+                    <!-- Lista de Usuarios -->
+                    <li class="p-2 cursor-pointer rounded flex items-center gap-2      
+               hover:bg-gray-700 hover:text-white" hx-get="{% url 'users:user_list' %}" hx-target="#dynamic-content"
+                        hx-swap="innerHTML">
+                        <i class="fa-solid fa-calendar-days text-current w-5 h-5"></i>
+                        Lista de Usuarios
+                    </li>
+                </ul>
+
+            </li>
+            {% endif %}
+
+            {% if request.user.role in 'admin tecnico' %}
+            <li>
+                <!-- Botón principal -->
+                <button
+                    class="flex items-center justify-between w-full px-3 py-2 rounded-md hover:bg-gray-600 cursor-pointer agenda-toggle">
+                    <span class="flex items-center">
+                        <img src="{% static 'images/pc.png' %}" class="w-6 h-6 mr-2">
+                        Atender Tickets
+                    </span>
+                    <svg class="w-4 h-4 transition-transform duration-300" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+
+                <!-- Submenú -->
+                <ul class="ml-6 mt-1 space-y-1 hidden agenda-submenu">
+                    <li class="p-2 cursor-pointer rounded hover:bg-gray-700"
+                        hx-get="" hx-target="#dynamic-content"
+                        hx-swap="innerHTML">
+                        🟡 Tickets Pendientes
+                    </li>
+
+                    <li class="p-2 cursor-pointer rounded hover:bg-gray-700"
+                        hx-get="" hx-target="#dynamic-content"
+                        hx-swap="innerHTML">
+                        🔵 Tickets en Proceso
+                    </li>
+
+                    <li class="p-2 cursor-pointer rounded hover:bg-gray-700"
+                        hx-get="" hx-target="#dynamic-content"
+                        hx-swap="innerHTML">
+                        🟢 Tickets Finalizados
+                    </li>
+                </ul>
+            </li>
+
+
+            {% endif %}
+
+            {% if request.user.role in 'admin usuario' %}
+            <li>
+                <a hx-get="{% url 'mantenimiento:mante_list' %}" hx-target="#dynamic-content" hx-swap="innerHTML"
+                    class="flex items-center px-3 py-2 rounded-md hover:bg-gray-600 cursor-pointer">
+                    <img src="{% static 'images/pc.png' %}" class="w-6 h-6 mr-2"> Tickets Solicitados </a>
+            </li>
+            {% endif %}
+            {% if request.user.role in 'admin usuario' %}
+            <li>
+                <a hx-get="{% url 'mantenimiento:mante_solicitar' %}" hx-target="#dynamic-content" hx-swap="innerHTML"
+                    class="flex items-center px-3 py-2 rounded-md hover:bg-gray-600 cursor-pointer text-gray-200">
+                    <img src="{% static 'images/pc.png' %}" class="w-6 h-6 mr-2">
+                    Solicitar Mantenimiento
+                </a>
+            </li>
+
+            {% endif %}
+            {% if request.user.role in 'admin tecnico' %}
+            <!-- Mantenimiento -->
+            <li>
+                <!-- Botón principal del menú -->
+                <button
+                    class="flex items-center justify-between w-full px-3 py-2 rounded-md hover:bg-gray-600 cursor-pointer agenda-toggle">
+                    <span class="flex items-center">
+                        <img src="{% static 'images/pc.png' %}" class="w-6 h-6 mr-2"> Mantenimiento
+                    </span>
+                    <!-- Flecha para indicar submenú -->
+                    <svg class="w-4 h-4 transform transition-transform duration-300" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+                <script src="{% static 'js/mantenimiento/solicitar_tinta.js' %}"></script>
+
+
+                <ul class="ml-6 mt-1 space-y-1 hidden agenda-submenu">
+                    <!-- Cronograma -->
+                    <li class="p-2 cursor-pointer rounded flex items-center gap-2      
+               hover:bg-gray-700 hover:text-white" hx-get="{% url 'mantenimiento:mante_cronograma' %}"
+                        hx-target="#dynamic-content" hx-swap="innerHTML">
+                        <i class="fa-solid fa-calendar-days text-current w-5 h-5"></i>
+                        Cronograma
+                    </li>
+
+                    <!-- Detalle -->
+                    <li class="p-2 cursor-pointer rounded flex items-center gap-2
+               hover:bg-gray-700 hover:text-white" hx-get="{% url 'mantenimiento:mante_detalle' %}"
+                        hx-target="#dynamic-content" hx-swap="innerHTML">
+                        <i class="fa-solid fa-file-lines text-current w-5 h-5"></i>
+                        Detalle
+                    </li>
+                </ul>
+
+            </li>
+            {% endif %}
+            <!-- Agenda -->
+            <li>
+                <!-- Botón principal del menú -->
+                <button
+                    class="flex items-center justify-between w-full px-3 py-2 rounded-md hover:bg-gray-600 cursor-pointer agenda-toggle">
+                    <span class="flex items-center">
+                        <img src="{% static 'images/pc.png' %}" class="w-6 h-6 mr-2"> Agenda
+                    </span>
+                    <!-- Flecha para indicar submenú -->
+                    <svg class="w-4 h-4 transform transition-transform duration-300" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+
+                <ul class="ml-6 mt-1 space-y-1 hidden agenda-submenu">
+                    <!-- Cronograma -->
+                    <li class="p-2 cursor-pointer rounded flex items-center gap-2      
+               hover:bg-gray-700 hover:text-white" hx-get="" hx-target="#dynamic-content" hx-swap="innerHTML">
+                        <i class="fa-solid fa-calendar-days text-current w-5 h-5"></i>
+                        Lista de Mantenimientos
+                    </li>
+
+                </ul>
+
+            </li>
+            {% if request.user.role in 'admin tecnico' %}
+            <!-- Equipos -->
+            <li>
+                <!-- Botón principal del menú -->
+                <button
+                    class="flex items-center justify-between w-full px-3 py-2 rounded-md hover:bg-gray-600 cursor-pointer agenda-toggle">
+                    <span class="flex items-center">
+                        <img src="{% static 'images/pc.png' %}" class="w-6 h-6 mr-2"> Equipos
+                    </span>
+                    <!-- Flecha para indicar submenú -->
+                    <svg class="w-4 h-4 transform transition-transform duration-300" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+
+                <ul class="ml-6 mt-1 space-y-1 hidden agenda-submenu">
+                    <!-- Lista de Equipos -->
+                    <li class="p-2 cursor-pointer rounded flex items-center gap-2      
+               hover:bg-gray-700 hover:text-white" hx-get="{% url 'equipo:lista_equipos' %}"
+                        hx-target="#dynamic-content" hx-swap="innerHTML">
+                        <i class="fa-solid fa-calendar-days text-current w-5 h-5"></i>
+                        Lista de Equipos
+                    </li>
+                </ul>
+                <ul class="ml-6 mt-1 space-y-1 hidden agenda-submenu">
+                    <!-- Lista de Equipos -->
+                    <li class="p-2 cursor-pointer rounded flex items-center gap-2      
+               hover:bg-gray-700 hover:text-white" hx-get="{% url 'equipo:lista_equipos' %}"
+                        hx-target="#dynamic-content" hx-swap="innerHTML">
+                        <i class="fa-solid fa-calendar-days text-current w-5 h-5"></i>
+                        Crear Equipo
+                    </li>
+                </ul>
+
+            </li>
+            {% endif %}
+            {% if request.user.role in 'admin tecnico' %}
+            <!-- Lugares -->
+            <li>
+                <!-- Botón principal del menú -->
+                <button
+                    class="flex items-center justify-between w-full px-3 py-2 rounded-md hover:bg-gray-600 cursor-pointer agenda-toggle">
+                    <span class="flex items-center">
+                        <img src="{% static 'images/pc.png' %}" class="w-6 h-6 mr-2"> Lugares
+                    </span>
+                    <!-- Flecha para indicar submenú -->
+                    <svg class="w-4 h-4 transform transition-transform duration-300" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+
+                <ul class="ml-6 mt-1 space-y-1 hidden agenda-submenu">
+                    <!-- Lista de Equipos -->
+                    <li class="p-2 cursor-pointer rounded flex items-center gap-2      
+               hover:bg-gray-700 hover:text-white" hx-get="{% url 'lugar:lista_lugares' %}"
+                        hx-target="#dynamic-content" hx-swap="innerHTML">
+                        <i class="fa-solid fa-calendar-days text-current w-5 h-5"></i>
+                        Lista de Lugares
+                    </li>
+                </ul>
+
+            </li>
+            {% endif %}
+            {% if request.user.role in 'admin tecnico' %}
+            <!-- Contacto -->
+            <li>
+                <a href="#contacto" class="flex items-center px-3 py-2 rounded-md hover:bg-gray-700">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 8V6a2 2 0 00-2-2H5a2 2 0 00-2 2v2m0 4v6a2 2 0 002 2h14a2 2 0 002-2v-6" />
+                    </svg>
+                    Contacto
+                </a>
+            </li>
+            {% endif %}
+
+        </nav>
+
+        <!-- Footer -->
+        <div class="mt-auto text-center text-gray-400 text-sm px-2 pb-2">
+            © 2025 SoportePC
+        </div>
+    </div>
+</aside>
+
+<!-- Overlay (para móvil) -->
+<div id="overlay" class="fixed inset-0 bg-black/50 hidden z-40 md:hidden"></div>
+
+<!-- Botón Hamburger (solo móvil) -->
+<button id="menu-toggle" class="md:hidden fixed top-4 left-4 z-50 bg-gray-800 text-gray-200 p-2 rounded-md shadow-md">
+    <svg id="menu-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+</button>

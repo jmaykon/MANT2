@@ -1,0 +1,66 @@
+<form hx-post="{% url 'lugar:editar_lugar' lugar.id_lugar %}" 
+      hx-target="#dynamic-content" 
+      hx-swap="innerHTML"
+      hx-trigger="confirmed" 
+      class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    
+    {% csrf_token %}
+
+    <div class="flex flex-col gap-1">
+        <label class="text-sm font-semibold text-gray-700">Nombre</label>
+        <input type="text" name="nombre" value="{{ lugar.nombre }}" 
+               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
+               placeholder="Ej. Almacén Central" required>
+    </div>
+
+    <div class="flex flex-col gap-1">
+        <label class="text-sm font-semibold text-gray-700">Dirección</label>
+        <input type="text" name="direccion" value="{{ lugar.direccion }}" 
+               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+               placeholder="Calle Falsa 123">
+    </div>
+
+    <div class="flex flex-col gap-1">
+        <label class="text-sm font-semibold text-gray-700">Área</label>
+        <input type="text" name="area" value="{{ lugar.area }}" 
+               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+               placeholder="Ej. Producción">
+    </div>
+
+    <div class="flex flex-col gap-1">
+        <label class="text-sm font-semibold text-gray-700">Ciudad</label>
+        <input type="text" name="ciudad" value="{{ lugar.ciudad }}" 
+               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+               placeholder="Ej. La Paz">
+    </div>
+
+    <div class="md:col-span-2 flex justify-end gap-3 mt-4 border-t pt-4">
+        <button type="button" 
+                onclick="closeModal('editar_lugar')" 
+                class="px-5 py-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 font-medium transition-colors">
+            Cancelar
+        </button>
+        
+        <button type="button" 
+            onclick="
+                Swal.fire({
+                    title: '¿Guardar cambios?',
+                    text: 'Se actualizará la información del lugar',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#2563eb', // blue-600
+                    cancelButtonColor: '#6b7280',  // gray-500
+                    confirmButtonText: 'Sí, guardar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        closeModal('editar_lugar');
+                        this.closest('form').dispatchEvent(new Event('confirmed'));
+                    }
+                });
+            " 
+            class="px-5 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 shadow-sm transition-all focus:ring-2 focus:ring-blue-300">
+            Guardar Cambios
+        </button>
+    </div>
+</form>

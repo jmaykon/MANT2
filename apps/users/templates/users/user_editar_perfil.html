@@ -1,0 +1,49 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="max-w-md mx-auto bg-white rounded-xl shadow-md p-6 mt-10">
+  <h2 class="text-2xl font-bold text-center mb-4">✏ Editar Perfil</h2>
+
+  <form method="post">
+    {% csrf_token %}
+    <input type="text" name="first_name" value="{{ request.user.first_name }}" placeholder="Nombre"
+      class="w-full border p-2 mb-3 rounded-md">
+    <input type="text" name="last_name" value="{{ request.user.last_name }}" placeholder="Apellido"
+      class="w-full border p-2 mb-3 rounded-md">
+    <input type="email" name="email" value="{{ request.user.email }}" placeholder="Email"
+      class="w-full border p-2 mb-3 rounded-md">
+
+    <div class="flex justify-end space-x-3 mt-4">
+      <a href="{% url 'users:perfil_users' %}" class="px-4 py-2 bg-gray-300 rounded-md">Cancelar</a>
+      <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Guardar</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+
+
+<li class="profile-container">
+  <div class="profile-button">
+    <div class="profile-avatar">
+      {{ user.first_name.0|upper|default:user.username.0|upper }}
+    </div>
+    <span class="profile-name">{{ user.first_name|default:user.username }}</span>
+  </div>
+
+  <div class="dropdown-menu">
+    <a href="{% url 'profile' %}" class="dropdown-item">
+      <span class="dropdown-icon">👤</span>
+      <span>Perfil</span>
+    </a>
+    <a href="{% url 'password_change' %}" class="dropdown-item">
+      <span class="dropdown-icon">🔒</span>
+      <span>Cambiar Contraseña</span>
+    </a>
+    <a href="{% url 'logout' %}" class="dropdown-item logout">
+      <span class="dropdown-icon">🚪</span>
+      <span>Cerrar Sesión</span>
+    </a>
+  </div>
+</li>

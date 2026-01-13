@@ -1,0 +1,326 @@
+{% load static %}
+<div class="container mx-auto px-4 py-6">
+    <div class="mb-6 flex justify-between items-center">
+
+        <div class="space-x-4 flex justify-between">
+            <button
+                class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onclick="openModal('addEquipoModal')">
+                <i class="fa-solid fa-plus mr-2"></i> Añadir Equipos
+            </button>
+            <button
+                class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+                onclick="openModal('addComponenteModal')">
+                <i class="fa-solid fa-plus mr-2"></i> Añadir Monitores
+            </button>
+            <button
+                class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onclick="openModal('addComponenteModal')">
+                <i class="fa-solid fa-plus mr-2"></i> Añadir Impresoras
+            </button>
+        </div>
+    </div>
+</div>
+
+<!--   EQUIPO COMPLETO PC,MONITO,IMPRESORA -->
+<div class="container mx-auto px-4 py-6">
+    <h1 class="text-2xl font-bold mb-4">Lista Equipos con Monitor e Impresoras</h1>
+    <div class="overflow-x-auto overflow-y-hidden rounded-lg shadow-lg border border-gray-200 ">
+        <table class="min-w-full bg-white text-sm">
+            <thead class="bg-blue-600 text-white sticky top-0 z-10">
+                <tr>
+                    <th class="px-4 py-2 text-left uppercase text-sm">N°</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">CODIGO CPU/LAPTOP</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">CODIGO MONITOR</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">CODIGO IMPRESORA</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">RESPONSABLE</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Lugar</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+
+                {% for equipo in equipos %}
+
+                <tr class="hover:bg-gray-100 even:bg-gray-100 hover:bg-gray-200 transition-colors">
+
+                    <td class="px-4 py-2">{{ forloop.counter }}</td>
+                    <td class="px-4 py-2">{{ equipo.aec }}</td>
+                    <td class="px-4 py-2">{{ equipo.aec }}</td>
+                    <td class="px-4 py-2">{{ equipo.aec }}</td>
+                    <td class="px-4 py-2">
+                        {% if equipo.id_users %}
+                        {{ equipo.id_users.nombre|default:"" }}{% if equipo.id_users.apellido_p %}
+                        {{ equipo.id_users.apellido_p }}{% endif %}
+                        {% if not equipo.id_users.nombre and not equipo.id_users.apellido_p %}
+                        <span class="text-gray-400">Sin Nombre</span>
+                        {% endif %}
+                        {% else %}
+                        <span class="text-gray-400">Sin asignar</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-2">{{ equipo.id_lugar.nombre }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="10" class="px-4 py-6 text-center text-gray-400">No hay equipos registrados</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<!--   EQUIPOS -->
+<div class="container mx-auto px-4 py-6">
+    <h1 class="text-2xl font-bold mb-4">Lista de Equipos</h1>
+    <div class="overflow-x-auto overflow-y-hidden rounded-lg shadow-lg border border-gray-200 ">
+        <table class="min-w-full bg-white text-sm">
+            <thead class="bg-blue-600 text-white sticky top-0 z-10">
+                <tr>
+                    <th class="px-4 py-2 text-left uppercase text-sm">N°</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Tipo</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">CODIGO</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Marca</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Modelo</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">SO</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Procesador</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Tipo Ram</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Tamaño Ram</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Tipo Disco</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Tamaño Disco</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Estado Disco</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Serial</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">IP</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Lugar</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Responsable</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Estado</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Observaciones</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Acciones</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+
+                {% for equipo in equipos %}
+
+                <tr class="hover:bg-gray-100 even:bg-gray-100 hover:bg-gray-200 transition-colors">
+
+
+                    <td class="px-4 py-2">{{ forloop.counter }}</td>
+                    <td class="px-4 py-2">{{ equipo.tipo }}</td>
+                    <td class="px-4 py-2">{{ equipo.aec }}</td>
+                    <td class="px-4 py-2">{{ equipo.marca }}</td>
+                    <td class="px-4 py-2">{{ equipo.modelo }}</td>
+                    <td class="px-4 py-2">{{ equipo.so }}</td>
+                    <td class="px-4 py-2">{{ equipo.procesador }}</td>
+                    <td class="px-4 py-2">{{ equipo.tipo_ram }}</td>
+                    <td class="px-4 py-2">{{ equipo.ram }}</td>
+                    <td class="px-4 py-2">{{ equipo.tipo_disco }}</td>
+                    <td class="px-4 py-2">{{ equipo.disco }}</td>
+                    <td class="px-4 py-2">{{ equipo.estado_disco }}</td>
+                    <td class="px-4 py-2">{{ equipo.serial }}</td>
+                    <td class="px-4 py-2">{{ equipo.ip }}</td>
+                    <td class="px-4 py-2">{{ equipo.id_lugar.nombre }}</td>
+                    <td class="px-4 py-2">
+                        {% if equipo.id_users %}
+                        {{ equipo.id_users.nombre|default:"" }}{% if equipo.id_users.apellido_p %}
+                        {{ equipo.id_users.apellido_p }}{% endif %}
+                        {% if not equipo.id_users.nombre and not equipo.id_users.apellido_p %}
+                        <span class="text-gray-400">Sin Nombre</span>
+                        {% endif %}
+                        {% else %}
+                        <span class="text-gray-400">Sin asignar</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-2">
+                        {% if equipo.estado_equipo == 'ACTIVO' %}
+                        <span class="px-3 py-1 rounded-full bg-green-500 text-white font-semibold">
+                            {{ equipo.estado_equipo}}</span>
+                        {% else %}
+                        <span class="px-3 py-1 rounded-full bg-red-500 text-white font-semibold">
+                            {{ equipo.estado_equipo}}</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-2">{{ equipo.observaciones }}</td>
+
+                    <td class="px-4 py-2  flex uppercase text-sm space-x-3">
+                        <!-- Botón Editar -->
+                        <button
+                            class="btn-editar group relative flex items-center justify-center p-2 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-600 hover:text-white transition"
+                            hx-get="{% url 'equipo:editar_equipo' equipo.id_equipo %}" hx-target="#modal-edit-body"
+                            hx-swap="innerHTML" onclick="openModal('editar_equipo')">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+
+                        <!-- Botón Eliminar -->
+                        <button
+                            class="btn-eliminar group relative flex items-center justify-center p-2 rounded-full bg-red-100 text-red-600 shadow-md hover:bg-red-600 hover:text-white transition-all duration-300 transform hover:scale-110"
+                            data-url="" hx-target="#dynamic-content" hx-swap="innerHTML">
+
+                            <i class="fa-solid fa-trash"></i>
+                            <span
+                                class="absolute opacity-0 group-hover:opacity-100 text-xs text-red-700 top-10 z-10 transition-all duration-300 transform group-hover:-translate-y-1">
+                                Eliminar
+                            </span>
+                        </button>
+
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="10" class="px-4 py-6 text-center text-gray-400">No hay equipos registrados</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- =================== MONITORES =================== -->
+<div class="container mx-auto px-4 py-6">
+    <h1 class="text-2xl font-bold mb-4">Lista de Monitores</h1>
+    <div class="overflow-x-auto overflow-y-hidden rounded-lg shadow-lg border border-gray-200 mb-8">
+        <table class="min-w-full bg-white text-sm">
+            <thead class="bg-blue-600 text-white sticky top-0 z-10">
+                <tr>
+                    <th class="px-4 py-2 text-left uppercase text-sm">N°</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Codigo</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Marca</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Modelo</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Serial</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Equipo</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Responsable</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Lugar</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Estado</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Observaciones</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                {% for comp in monitores %}
+                <tr class="hover:bg-gray-100 even:bg-gray-50 transition-colors">
+                    <td class="px-4 py-2">{{ forloop.counter }}</td>
+                    <td class="px-4 py-2">{{ comp.aec }}</td>
+                    <td class="px-4 py-2">{{ comp.marca }}</td>
+                    <td class="px-4 py-2">{{ comp.modelo }}</td>
+                    <td class="px-4 py-2">{{ comp.serial }}</td>
+                    <td class="px-4 py-2">{{ comp.id_equipo }}</td>
+                    <td class="px-4 py-2">
+                        {% if comp.id_users %}
+                        {{ comp.id_users.nombre|default_if_none:"" }}
+                        {{ comp.id_users.apellido_p|default_if_none:"" }}
+                        {% else %}
+                        <span class="text-gray-400">Sin asignar</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-2">{{ comp.id_lugar }}</td>
+                    <td class="px-4 py-2">
+                        {% if comp.estado == "ACTIVO" %}
+                        <span class="px-3 py-1 rounded-full bg-green-500 text-white font-semibold">
+                            {{ comp.estado }}
+                        </span>
+                        {% elif comp.estado == "MANTENIMIENTO" %}
+                        <span class="px-3 py-1 rounded-full bg-yellow-500 text-white font-semibold">
+                            {{ comp.estado }}
+                        </span>
+                        {% else %}
+                        <span class="px-3 py-1 rounded-full bg-red-500 text-white font-semibold">
+                            {{ comp.estado }}
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-2">{{ comp.observaciones }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" class="px-4 py-6 text-center text-gray-400">No hay monitores registrados</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- =================== IMPRESORAS =================== -->
+<div class="container mx-auto px-4 py-6">
+
+    <h1 class="text-2xl font-bold mb-4">Lista de Impresoras</h1>
+    <div class="overflow-x-auto overflow-y-hidden rounded-lg shadow-lg border border-gray-200">
+        <table class="min-w-full bg-white text-sm">
+            <thead class="bg-blue-600 text-white sticky top-0 z-10">
+                <tr>
+                    <th class="px-4 py-2 text-left uppercase text-sm">N°</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Codigo</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Marca</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Modelo</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Serial</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Equipo</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Responsable</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Lugar</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Estado</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Observaciones</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                {% for comp in impresoras %}
+                <tr class="hover:bg-gray-100 even:bg-gray-50 transition-colors">
+                    <td class="px-4 py-2">{{ forloop.counter }}</td>
+                    <td class="px-4 py-2">{{ comp.aec }}</td>
+                    <td class="px-4 py-2">{{ comp.marca }}</td>
+                    <td class="px-4 py-2">{{ comp.modelo }}</td>
+                    <td class="px-4 py-2">{{ comp.serial }}</td>
+                    <td class="px-4 py-2">{{ comp.id_equipo }}</td>
+                    <td class="px-4 py-2">
+                        {% if comp.id_users %}
+                        {{ comp.id_users.nombre|default_if_none:"" }}
+                        {{ comp.id_users.apellido_p|default_if_none:"" }}
+                        {% else %}
+                        <span class="text-gray-400">Sin asignar</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-2">{{ comp.id_lugar }}</td>
+                    <td class="px-4 py-2">
+                        {% if comp.estado == "ACTIVO" %}
+                        <span class="px-3 py-1 rounded-full bg-green-500 text-white font-semibold">
+                            {{ comp.estado }}
+                        </span>
+                        {% elif comp.estado == "MANTENIMIENTO" %}
+                        <span class="px-3 py-1 rounded-full bg-yellow-500 text-white font-semibold">
+                            {{ comp.estado }}
+                        </span>
+                        {% else %}
+                        <span class="px-3 py-1 rounded-full bg-red-500 text-white font-semibold">
+                            {{ comp.estado }}
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-2">{{ comp.observaciones }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" class="px-4 py-6 text-center text-gray-400">No hay impresoras registradas</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<!-- Modal Editar Lugar -->
+<div id="editar_equipo" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden flex justify-center items-center z-50">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl">
+        <div class="flex justify-between items-center px-6 py-4 border-b">
+            <h2 class="text-xl font-semibold">Editar Equipo</h2>
+            <button class="text-gray-500 hover:text-gray-700 text-2xl"
+                onclick="closeModal('editar_equipo')">&times;</button>
+        </div>
+        <div class="p-6" id="modal-edit-body">
+            <!-- Aquí se cargará el formulario editado por HTMX -->
+        </div>
+    </div>
+</div>
+
+
+
+
+<script src="{% static 'js/equipo/equipo.js'%}"></script>
+<script src="{% static 'js/equipo/update.js'%}"></script>
+<script src="{% static 'js/equipo/modal_componente.js' %}"></script>

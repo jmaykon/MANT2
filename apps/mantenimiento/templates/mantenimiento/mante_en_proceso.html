@@ -1,0 +1,74 @@
+{% load static %}
+{% block content %}
+<div class="tickets-container">
+    {% for ticket in tickets %}
+    <div class="ticket">
+
+        <div class="stub">
+            <div class="text-center">
+                <span class="admit">Ticket</span>
+                <span class="line"></span>
+            </div>
+            <div class="number">{{ ticket.id_ticket }}</div>
+        </div>
+
+        <div class="check">
+            <div class="big">{{ ticket.get_tipo_soporte_display }}</div>
+
+            <div class="number">{{ ticket.insumos_detalle }}</div>
+
+            <div class="descripcion">
+                {{ ticket.descripcion }}
+            </div>
+
+            <div class="info">
+                <section>
+                    <div class="title">Fecha</div>
+                    <div>{{ ticket.fecha_creacion|date:"d/m/Y" }}</div>
+                </section>
+                <section>
+                    <div class="title">Usuario</div>
+                    <div>
+                        {{ ticket.id_users.nombre }} {{ ticket.id_users.apellido_p }} {{ ticket.id_users.apellido_m}}
+                    </div>
+                </section>
+                <section>
+                    <div class="priority">
+                        Prioridad:<br>
+                        {% if ticket.prioridad == 'baja' %}
+                        <span class="baja">Baja</span>
+                        {% elif ticket.prioridad == 'media' %}
+                        <span class="media">Media</span>
+                        {% elif ticket.prioridad == 'alta' %}
+                        <span class="alta">Alta</span>
+                        {% elif ticket.prioridad == 'urgente' %}
+                        <span class="urgente">urgente</span>
+                        {% endif %}
+                    </div>
+                </section>
+            </div>
+
+            <div class="status">
+                Estado:
+                {% if ticket.estado_ticket == 'Pendiente' %}
+                <span class="pendiente">Pendiente</span>
+                {% elif ticket.estado_ticket == 'En Proceso' %}
+                <span class="en_proceso">En Proceso</span>
+                {% elif ticket.estado_ticket == 'Completado' %}
+                <span class="completado">Completado</span>
+                {% elif ticket.estado_ticket == 'Cancelado' %}
+                <span class="cancelado">Cancelado</span>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+
+
+    {% empty %}
+    <p>No hay tickets disponibles.</p>
+    {% endfor %}
+</div>
+
+<link rel="stylesheet" href="{% static 'css/mantenimiento/mantener_en_proceso.css' %}">
+{% endblock %}

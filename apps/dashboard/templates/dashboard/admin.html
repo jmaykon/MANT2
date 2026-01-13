@@ -1,0 +1,46 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Dashboard Admin{% endblock %}
+
+{% block content %}
+<div id="dashboard-content">
+    <!-- Dashboard Header -->
+
+
+    <!-- Contenido dinámico -->
+    <div class="bg-white p-4 mt-6 rounded shadow" id="dynamic-content">
+
+
+        <div class="dashboard-header mb-6">
+            <h1 class="text-2xl font-bold">Resumen General</h1>
+            <p class="text-gray-600 mt-1">Bienvenido al administrador, aquí está tu resumen de hoy</p>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white p-4 rounded shadow">
+                <div class="font-semibold">Usuarios Totales</div>
+                <div class="text-2xl font-bold">12,584</div>
+                <div class="text-green-500">↑ 12.5% vs último mes</div>
+            </div>
+            <div class="bg-white p-4 rounded shadow">
+                <div class="font-semibold">Ventas</div>
+                <div class="text-2xl font-bold">$45,231</div>
+                <div class="text-green-500">↑ 8.3% vs último mes</div>
+            </div>
+            <div class="bg-white p-4 rounded shadow">
+                <div class="font-semibold">Pedidos</div>
+                <div class="text-2xl font-bold">2,847</div>
+                <div class="text-red-500">↓ 3.2% vs último mes</div>
+            </div>
+            <div class="bg-white p-4 rounded shadow">
+                <div class="font-semibold">Tasa Conversión</div>
+                <div class="text-2xl font-bold">3.24%</div>
+                <div class="text-green-500">↑ 0.8% vs último mes</div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+{% endblock %}

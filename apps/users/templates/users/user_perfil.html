@@ -1,0 +1,94 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<!-- Botón para abrir el modal principal del perfil -->
+<div class="flex justify-center mt-10">
+  <button id="openPerfil" class="px-6 py-3 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition">
+    👤 Ver Perfil
+  </button>
+</div>
+
+<!-- MODAL PRINCIPAL: PERFIL -->
+<div id="modalPerfil" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-40">
+  <div class="bg-white w-full max-w-lg rounded-xl shadow-xl p-6 relative" id="perfilContenido">
+    <button id="closePerfil" class="absolute top-2 right-3 text-gray-500 hover:text-red-500 text-2xl">&times;</button>
+
+    <h2 class="text-2xl font-bold text-center mb-6">👤 Mi Perfil</h2>
+
+    <ul class="space-y-2 text-gray-800">
+      <li><strong>Usuario:</strong> {{ user.username }}</li>
+      <li><strong>Email:</strong> {{ user.email }}</li>
+      <li><strong>Rol:</strong> {{ user.rol }}</li>
+      <li><strong>Nombre:</strong> {{ user.first_name }}</li>
+      <li><strong>Apellido Paterno:</strong> {{ user.last_name }}</li>
+      <li><strong>CI:</strong> {{ user.ci }}</li>
+      <li><strong>Celular:</strong> {{ user.celular }}</li>
+      <li><strong>Estado:</strong> 
+        {% if user.is_active %}
+          <span class="text-green-600 font-semibold">✅ Activo</span>
+        {% else %}
+          <span class="text-red-600 font-semibold">❌ Inactivo</span>
+        {% endif %}
+      </li>
+    </ul>
+
+    <div class="mt-6 flex flex-wrap justify-center gap-3">
+      <button id="openEditar" class="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600">✏ Editar</button>
+      <button id="openPassword" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">🔒 Cambiar Contraseña</button>
+      <button id="openCerrarSesion" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">🚪 Cerrar Sesión</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODALES SECUNDARIOS -->
+<div id="modalEditar" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+  <div class="bg-white w-full max-w-md p-6 rounded-lg shadow-lg relative">
+    <button class="closeModal absolute top-2 right-3 text-gray-500 hover:text-red-500 text-2xl">&times;</button>
+    <h3 class="text-xl font-bold mb-4 text-center">✏ Editar Perfil</h3>
+    <form method="post" action="">
+      {% csrf_token %}
+      <input type="text" name="first_name" value="{{ user.first_name }}" placeholder="Nombre" class="w-full border p-2 mb-3 rounded-md">
+      <input type="text" name="last_name" value="{{ user.last_name }}" placeholder="Apellido Paterno" class="w-full border p-2 mb-3 rounded-md">
+      <input type="email" name="email" value="{{ user.email }}" placeholder="Email" class="w-full border p-2 mb-3 rounded-md">
+      <div class="flex justify-end">
+        <button type="button" class="closeModal mr-3 px-4 py-2 bg-gray-300 rounded-md">Cancelar</button>
+        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="modalPassword" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+  <div class="bg-white w-full max-w-md p-6 rounded-lg shadow-lg relative">
+    <button class="closeModal absolute top-2 right-3 text-gray-500 hover:text-red-500 text-2xl">&times;</button>
+    <h3 class="text-xl font-bold mb-4 text-center">🔒 Cambiar Contraseña</h3>
+    <form method="post" action="">
+      {% csrf_token %}
+      <input type="password" name="old_password" placeholder="Contraseña actual" class="w-full border p-2 mb-3 rounded-md">
+      <input type="password" name="new_password1" placeholder="Nueva contraseña" class="w-full border p-2 mb-3 rounded-md">
+      <input type="password" name="new_password2" placeholder="Confirmar nueva contraseña" class="w-full border p-2 mb-3 rounded-md">
+      <div class="flex justify-end">
+        <button type="button" class="closeModal mr-3 px-4 py-2 bg-gray-300 rounded-md">Cancelar</button>
+        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="modalCerrarSesion" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+  <div class="bg-white w-full max-w-sm p-6 rounded-lg shadow-lg relative text-center">
+    <button class="closeModal absolute top-2 right-3 text-gray-500 hover:text-red-500 text-2xl">&times;</button>
+    <h3 class="text-xl font-semibold mb-4">🚪 ¿Deseas cerrar sesión?</h3>
+    <div class="flex justify-center gap-3">
+      <button type="button" class="closeModal px-4 py-2 bg-gray-300 rounded-md">Cancelar</button>
+      <a href="{% url 'users:logout' %}" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">Cerrar Sesión</a>
+    </div>
+  </div>
+</div>
+
+<!-- SCRIPT -->
+<script src="{% static 'js/perfil/perfil.js' %}"></script>
+
+{% endblock %}

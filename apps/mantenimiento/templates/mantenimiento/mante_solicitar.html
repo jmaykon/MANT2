@@ -1,0 +1,132 @@
+{% load static %}
+{% block content %}
+<div class="p-6 bg-white rounded-lg shadow">
+    <h4 class="text-2xl content-center font-bold mb-4">SOLICITAR SOPORTE</h4>
+
+    <p class="text-sm text-justify">
+        <strong>El mantenimiento correctivo</strong> se realiza una vez que un equipo ha fallado...
+    </p>
+    <p class="text-sm text-justify">
+        <strong>El mantenimiento preventivo</strong> se realiza de manera planificada...
+    </p>
+
+    <form hx-post="{% url 'mantenimiento:mante_solicitar' %}" hx-target="#dynamic-content" hx-swap="innerHTML"
+        class="space-y-4">
+        {% csrf_token %}
+
+        <div>
+            <label class="block text-sm font-bold text-gray-700">Tipo de Soporte</label>
+            <select name="tipo" id="tipo_soporte" class="w-full mt-1 border rounded p-2">
+                <option value="">Seleccione...</option>
+                <option value="preventivo">Mantenimiento Preventivo</option>
+                <option value="correctivo">Mantenimiento Correctivo</option>
+                <option value="recarga_tinta">Recarga de Tinta</option>
+                <option value="tonner">Recarga de Tonner</option>
+                <option value="soporte_usuario">Soporte al Usuario</option>
+            </select>
+        </div>
+
+        <div id="colores_tinta" class="hidden animate-fade-in bg-gray-50 p-6 rounded-xl border border-gray-100">
+            <label class="block text-lg font-bold text-gray-800 mb-8 text-center uppercase tracking-wider">
+                Seleccione los colores a recargar
+            </label>
+
+            <div class="flex flex-col items-center">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-12 mb-10">
+
+                    <label class="flex flex-col items-center group cursor-pointer">
+                        <div class="relative">
+                            <img src="{% static 'images/colores/yellow.png' %}" alt="Yellow"
+                                class="w-[250px] h-[200px] object-contain transition-transform duration-300 group-hover:scale-110">
+                        </div>
+                        <span class="mt-3 text-base font-bold text-gray-700">YELLOW</span>
+                        <input type="checkbox" name="colores" value="yellow"
+                            class="mt-2 w-7 h-7 border-2 border-gray-400 rounded-md checked:bg-yellow-400">
+                    </label>
+
+                    <label class="flex flex-col items-center group cursor-pointer">
+                        <div class="relative">
+                            <img src="{% static 'images/colores/cian.png' %}" alt="Cian"
+                                class="w-[250px] h-[200px] object-contain transition-transform duration-300 group-hover:scale-110">
+                        </div>
+                        <span class="mt-3 text-base font-bold text-gray-700">CIAN</span>
+                        <input type="checkbox" name="colores" value="cian"
+                            class="mt-2 w-7 h-7 border-2 border-gray-400 rounded-md checked:bg-cyan-500">
+                    </label>
+
+                    <label class="flex flex-col items-center group cursor-pointer">
+                        <div class="relative">
+                            <img src="{% static 'images/colores/magenta.png' %}" alt="Magenta"
+                                class="w-[250px] h-[200px] object-contain transition-transform duration-300 group-hover:scale-110">
+                        </div>
+                        <span class="mt-3 text-base font-bold text-gray-700">MAGENTA</span>
+                        <input type="checkbox" name="colores" value="magenta"
+                            class="mt-2 w-7 h-7 border-2 border-gray-400 rounded-md checked:bg-pink-500">
+                    </label>
+
+                    <label class="flex flex-col items-center group cursor-pointer">
+                        <div class="relative">
+                            <img src="{% static 'images/colores/black.png' %}" alt="Black"
+                                class="w-[250px] h-[200px] object-contain transition-transform duration-300 group-hover:scale-110">
+                        </div>
+                        <span class="mt-3 text-base font-bold text-gray-700">BLACK</span>
+                        <input type="checkbox" name="colores" value="black"
+                            class="mt-2 w-7 h-7 border-2 border-gray-400 rounded-md checked:bg-black">
+                    </label>
+                </div>
+
+                <div class="w-full max-w-2xl border-t-2 border-dashed border-gray-200 pt-8 flex justify-center">
+                    <label class="flex flex-col items-center group cursor-pointer">
+                        <div class="relative">
+                            <img src="{% static 'images/colores/all.png' %}" alt="Todos"
+                                class="w-[450px] h-[300px] object-contain transition-transform duration-300 group-hover:scale-110">
+                        </div>
+                        <span class="mt-3 text-lg font-black text-blue-700 uppercase">Todos los Colores</span>
+                        <input type="checkbox" name="colores" value="todos"
+                            class="mt-2 w-8 h-8 border-2 border-blue-600 rounded-md">
+                    </label>
+                </div>
+            </div>
+        </div>
+
+
+        <div id="tonner" class="hidden section-toggle">
+            <label class="block text-sm font-bold text-gray-700 mb-2">Recargar Tonner</label>
+            <div class="flex flex-row justify-center space-x-8">
+                <!-- tonner -->
+                <label class="flex flex-col items-center space-y-1 cursor-pointer">
+                    <img src="{% static 'images/colores/tonner.png' %}" alt="Tonner"
+                        class="w-25 h-30 rounded-full border">
+                </label>
+            </div>
+        </div>
+
+        <!-- Campo de Prioridad -->
+        <div>
+            <label class="block text-sm font-bold text-gray-700">Prioridad</label>
+            <select name="prioridad" id="prioridad" class="w-full mt-1 border rounded p-2">
+                <option value="baja" style="color:green;">Baja</option>
+                <option value="media" style="color:blue;" selected>Media</option>
+                <option value="alta" style="color:orange;">Alta</option>
+                <option value="urgente" style="color:red;">Urgente</option>
+            </select>
+        </div>
+        
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Descripción</label>
+            <textarea name="descripcion" rows="3" class="w-full mt-1 border rounded p-2"
+                placeholder="(Opcional) Describe el problema o solicitud"></textarea>
+        </div>
+
+        <div class="pt-2">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition">
+                Enviar solicitud
+            </button>
+        </div>
+    </form>
+</div>
+
+<script src="{% static 'js/mantenimiento/alert.js' %}"></script>
+<script src="{% static 'js/mantenimiento/solicitar_tonner.js' %}"></script>
+{% endblock %}

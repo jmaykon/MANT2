@@ -1,0 +1,131 @@
+{% load static %}
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <div class="mb-6 flex justify-between items-center">
+        <h1 class="text-2xl font-bold"> Usuarios
+        </h1>
+        <div class="space-x-4 flex justify-between">
+            <button
+                class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onclick="openUserModal()">
+                <i class="fa-solid fa-plus mr-2"></i> Añadir Usuarios
+            </button>
+        </div>
+
+    </div>
+
+</div>
+
+<div class="container mx-auto px-4 py-6">
+    <h1 class="text-2xl font-bold mb-4">Lista de Usuarios</h1>
+    <div class="overflow-auto rounded-lg shadow-lg border border-gray-200 ">
+        <table class="min-w-full bg-white text-sm">
+            <thead class="bg-blue-600 text-white sticky top-0 z-10">
+                <tr>
+                    <th class="px-4 py-2 text-left uppercase text-sm">N°</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Codigo</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Usuario</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Rol</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Equipo</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Lugar</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Area</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Estado</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Firma</th>
+                    <th class="px-4 py-2 text-left uppercase text-sm">Acciones</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                {% for user in users %}
+                <tr class="hover:bg-gray-100">
+                    <td class="px-4 py-2">{{ forloop.counter }}</td>
+                    <td class="px-4 py-2">{% if user.codigo %}
+                        {{ user.codigo }}
+                        {% else %}
+                        <span class="text-gray-400">Sin Codigo asignado</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-2">{{ user.username }}</td>
+                    <td class="px-4 py-2">{{ user.role }}</td>
+                    <td class="px-4 py-2">{% if user.id_equipo %}
+                        {{ user.id_equipo.aec }}
+                        {% else %}
+                        <span class="text-gray-400">Sin equipo asignado</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-2"> {% if user.id_lugar %}
+                        {{ user.id_lugar.nombre }}
+                        {% else %}
+                        <span class="text-gray-400">Sin lugar asignado</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-2">{% if user.id_lugar %}
+                        {{ user.id_lugar.area }}
+                        {% else %}
+                        <span class="text-gray-400">Sin área asignada</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-2">
+                        {% if user.is_active == 1 %}
+                        <span class="px-3 py-1 rounded-full bg-green-500 text-white font-semibold">
+                            {{ "Activo"}}</span>
+                        {% else %}
+                        <span class="px-3 py-1 rounded-full bg-red-500 text-white font-semibold">
+                            {{ "Inactivo"}}</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-2">
+                        {% if user.firma %}
+                        <button onclick="openFirmaModal('{{ user.firma.url }}')">
+                            <img src="{{ user.firma.url }}" alt="Firma de {{ user.username }}"
+                                class="w-10 h-10 object-cover rounded-full cursor-pointer border-2 border-blue-500">
+                        </button>
+                        {% else %}
+                        <p>No hay firma</p>
+                        {% endif %}
+                    </td>
+                    <th class="px-4 py-2 text-left uppercase text-sm"></th>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="10" class="px-4 py-6 text-center text-gray-400">No hay Usuarios registrados</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<!-- Modal FIRMA -->
+<div id="firmaModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white p-4 rounded shadow-lg relative">
+        <button onclick="closeFirmaModal()"
+            class="absolute top-2 right-2 text-gray-600 hover:text-black">&times;</button>
+        <img id="firmaModalImg" src="" alt="Firma" class="max-w-full max-h-[80vh]">
+    </div>
+</div>
+
+
+<!-- Modal USUARIO -->
+<div id="userModal"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center {% if not form.errors %}hidden{% endif %} z-50">
+
+    <div class="bg-white p-6 rounded shadow-lg relative w-11/12 max-w-lg overflow-y-auto" style="max-height: 90vh;">
+
+        <a href="{% url 'users:user_list' %}"
+            class="absolute top-2 right-2 text-gray-600 hover:text-black text-2xl">&times;</a>
+
+        <h2 id="modalTitle" class="text-xl font-bold mb-4">Agregar Usuario</h2>
+
+    </div>
+</div>
+
+
+
+
+
+
+<script src="{% static 'js/users/user_firma.js' %}"></script>
+<script src="{% static 'js/users/user_modal.js' %}"></script>
+
+{% endblock %}

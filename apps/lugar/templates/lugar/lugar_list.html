@@ -1,0 +1,14 @@
+{% load static %}
+
+{% block content %}
+<div id="dashboard-content">
+    <!-- Contenido dinámico -->
+    <div class="bg-white p-4 mt-6 " id="dynamic-content">
+        {% include 'lugar/partials/lugar_table.html' %}
+    </div>
+
+</div>
+
+{% endblock %}
+
+

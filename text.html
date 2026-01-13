@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modal con SweetAlert2</title>
+
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</head>
+<body class="bg-gray-100 flex flex-col items-center justify-center h-screen space-y-6">
+
+<!-- Botón Atender -->
+<button id="btnAtender" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
+  Atender Ticket
+</button>
+
+<!-- Modal (oculto) -->
+<div id="modal" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden">
+  <div class="bg-white rounded-xl w-96 p-6 shadow-lg relative">
+
+    <div class="text-center text-xl font-semibold mb-4">Atender Ticket</div>
+
+    <div class="flex justify-between mb-6">
+      <div class="flex-1 text-center pb-2 border-b-4 border-gray-300 step" data-step="1">Pendiente</div>
+      <div class="flex-1 text-center pb-2 border-b-4 border-gray-300 step" data-step="2">En Proceso</div>
+      <div class="flex-1 text-center pb-2 border-b-4 border-gray-300 step" data-step="3">Completado</div>
+    </div>
+
+    <div class="modal-body min-h-[200px]">
+      <div class="step-content" data-step="1">
+        <p class="text-gray-700">Ticket pendiente de atención.</p>
+      </div>
+      <div class="step-content hidden" data-step="2">
+        <p class="text-gray-700">Ticket en proceso de atención.</p>
+      </div>
+      <div class="step-content hidden" data-step="3">
+        <form class="flex flex-col space-y-4">
+          <div>
+            <label class="font-medium text-gray-700">Diagnóstico</label>
+            <textarea class="mt-1 w-full border rounded-md p-2 focus:ring-2 focus:ring-green-500"></textarea>
+          </div>
+          <div>
+            <label class="font-medium text-gray-700">Solución Aplicada</label>
+            <textarea class="mt-1 w-full border rounded-md p-2 focus:ring-2 focus:ring-green-500"></textarea>
+          </div>
+          <div>
+            <label class="font-medium text-gray-700">Observaciones Técnicas</label>
+            <textarea class="mt-1 w-full border rounded-md p-2 focus:ring-2 focus:ring-green-500"></textarea>
+          </div>
+          <div>
+            <label class="font-medium text-gray-700">Comentario Usuario</label>
+            <textarea class="mt-1 w-full border rounded-md p-2 focus:ring-2 focus:ring-green-500"></textarea>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="flex justify-end mt-6 space-x-2">
+      <button class="bg-green-500 text-white px-4 py-2 rounded-md btn-next">Continuar</button>
+    </div>
+
+    <button id="btnCerrar" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-xl font-bold">&times;</button>
+
+  </div>
+</div>
+
+<script>
+  const modal = document.getElementById('modal');
+  const btnAtender = document.getElementById('btnAtender');
+  const btnCerrar = document.getElementById('btnCerrar');
+
+  const steps = document.querySelectorAll('.step');
+  const stepContents = document.querySelectorAll('.step-content');
+  const btnNext = document.querySelector('.btn-next');
+
+  let currentStep = 1;
+
+  function showStep(step) {
+    steps.forEach(s => s.classList.remove('border-green-500', 'font-bold'));
+    stepContents.forEach(c => c.classList.add('hidden'));
+
+    const stepEl = document.querySelector(`.step[data-step="${step}"]`);
+    stepEl.classList.add('border-green-500', 'font-bold');
+
+    document.querySelector(`.step-content[data-step="${step}"]`).classList.remove('hidden');
+
+    btnNext.textContent = step === 3 ? 'Finalizar' : 'Continuar';
+  }
+
+  btnAtender.addEventListener('click', () => {
+    Swal.fire({
+      title: '¿Atender ticket?',
+      text: "Confirma iniciar el proceso",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, atender',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        modal.classList.remove('hidden');
+        showStep(currentStep);
+      }
+    });
+  });
+
+  btnCerrar.addEventListener('click', () => {
+    modal.classList.add('hidden');
+    currentStep = 1;
+    showStep(currentStep);
+  });
+
+  btnNext.addEventListener('click', () => {
+    Swal.fire({
+      title: '¿Continuar al siguiente estado?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, continuar',
+      cancelButtonText: 'No'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        if (currentStep < 3) {
+          currentStep++;
+          showStep(currentStep);
+        } else {
+          Swal.fire({
+            title: '¡Completado!',
+            text: 'Has finalizado el proceso.',
+            icon: 'success',
+            confirmButtonText: 'Aceptar'
+          }).then(() => {
+            modal.classList.add('hidden');
+            currentStep = 1;
+            showStep(currentStep);
+          });
+        }
+      }
+    });
+  });
+</script>
+
+</body>
+</html>

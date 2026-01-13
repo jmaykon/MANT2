@@ -1,0 +1,12 @@
+{% load static %}
+
+{% block content %}
+<div id="dashboard-content">
+    <!-- Contenido dinámico -->
+    <div class="bg-white p-4 mt-6 " id="dynamic-content">
+        {% include 'equipo/partials/equipo_list.html' %}
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,116 @@
+{% load static %}
+{% block content %}
+<div class="tickets-container">
+    {% for ticket in tickets %}
+    <div class="ticket" id="ticket-{{ ticket.id_ticket }}">
+
+        <!-- Columna Izquierda -->
+        <div class="stub">
+            <div class="text-center">
+                <span class="admit">Ticket</span>
+                <span class="line"></span>
+            </div>
+            <div class="number">{{ ticket.id_ticket }}</div>
+        </div>
+
+        <!-- Columna Centro -->
+        <div class="check">
+            <div class="big">{{ ticket.get_tipo_soporte_display }}</div>
+            <div class="number">{{ ticket.insumos_utilizados }}</div>
+            <div class="descripcion">
+                {{ ticket.descripcion }}
+            </div>
+
+            {% if ticket.descripcion|length > 100 %}
+            <button class="btn-ver-mas" data-ticket-id="{{ ticket.id_ticket }}">Mostrar descripción</button>
+            {% endif %}
+
+            <!-- Información adicional -->
+            <div class="info">
+                <section>
+                    <div class="title">Fecha</div>
+                    <div>{{ ticket.fecha_creacion|date:"d/m/Y" }}</div>
+                </section>
+                <section>
+                    <div class="title">Usuario</div>
+                    <div>{{ ticket.id_users.nombre }} {{ ticket.id_users.apellido_p }} {{ ticket.id_users.apellido_m }}
+                    </div>
+                </section>
+                <section>
+                    <div class="title">Prioridad:<br>
+                        {% if ticket.prioridad == 'baja' %}<span class="baja">Baja</span>{% endif %}
+                        {% if ticket.prioridad == 'media' %}<span class="media">Media</span>{% endif %}
+                        {% if ticket.prioridad == 'alta' %}<span class="alta">Alta</span>{% endif %}
+                        {% if ticket.prioridad == 'urgente' %}<span class="urgente">Urgente</span>{% endif %}
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- Columna Derecha -->
+        <div class="estado flex flex-col items-center p-4">
+            <div class="flex flex-col gap-1 mb-1">
+                <button class="btn-atender" data-ticket-id="{{ ticket.id_ticket }}"
+                    data-estado="{{ ticket.estado_ticket }}">
+                    Atender Ticket
+                </button>
+                <button class="px-0.5 py-0.5 text-white bg-blue-500 rounded hover:bg-blue-600">Designar</button>
+                <button class="px-0.5 py-0.5 text-white bg-red-500 rounded hover:bg-red-600">Cancelar</button>
+            </div>
+
+            <div class="status">Estado:<br>
+                {% if ticket.estado_ticket == 'pendiente' %}<span class="pendiente">Pendiente</span>{% endif %}
+                {% if ticket.estado_ticket == 'en_proceso' %}<span class="en_proceso">En Proceso</span>{% endif %}
+                {% if ticket.estado_ticket == 'completado' %}<span class="completado">Completado</span>{% endif %}
+                {% if ticket.estado_ticket == 'cancelado' %}<span class="cancelado">Cancelado</span>{% endif %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <p>No hay tickets disponibles.</p>
+    {% endfor %}
+</div>
+
+<!-- MODAL ATENDER -->
+<div id="modal" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-xl w-96 p-6 shadow-lg relative">
+
+        <h2 class="text-center text-xl font-semibold mb-4">Atender Ticket</h2>
+
+        <!-- STEPS -->
+        <div class="flex justify-between mb-6">
+            <div class="flex-1 text-center pb-2 border-b-4 step" data-step="1">Pendiente</div>
+            <div class="flex-1 text-center pb-2 border-b-4 step" data-step="2">En Proceso</div>
+            <div class="flex-1 text-center pb-2 border-b-4 step" data-step="3">Completado</div>
+        </div>
+
+        <div class="modal-body min-h-[200px]">
+            <div class="step-content" data-step="1">
+                <p>Ticket pendiente de atención.</p>
+            </div>
+
+            <div class="step-content hidden" data-step="2">
+                <p>Ticket en proceso de atención.</p>
+            </div>
+
+            <div class="step-content hidden" data-step="3">
+                <form id="form-atencion">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <input type="hidden" name="estado_ticket" id="estado_ticket" value="pendiente">
+                </form>
+            </div>
+        </div>
+
+        <div class="flex justify-end mt-4">
+            <button class="btn-next bg-green-500 text-white px-4 py-2 rounded">Continuar</button>
+        </div>
+
+        <button id="btnCerrar" class="absolute top-2 right-3 text-xl">&times;</button>
+    </div>
+</div>
+
+<link rel="stylesheet" href="{% static 'css/mantenimiento/ticket.css' %}">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{% static 'js/mantenimiento/atender.js' %}"></script>
+{% endblock %}
