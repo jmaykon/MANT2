@@ -70,19 +70,37 @@ def mante_solicitar(request):
 @login_required
 def atender_ticket(request):
     if request.method == 'POST':
-        ticket_id = request.POST.get('ticket_id')
+        ticket_id = request.POST.get('id_ticket')
         ticket = get_object_or_404(Ticket, id_ticket=ticket_id)
-        
-        ticket.diagnostico = request.POST.get('diagnostico')
-        ticket.solucion_aplicada = request.POST.get('solucion_aplicada')
-        ticket.observaciones_tecnicas = request.POST.get('observaciones_tecnicas')
-        ticket.comentario_usuario = request.POST.get('comentario_usuario')
-        
-        ticket.estado_ticket = 'completado'
-        ticket.fecha_cierre = timezone.now()
+
+        paso_actual = request.POST.get('step')
+
+        # Guardar estado y datos según paso
+        if paso_actual == '1':
+            ticket.estado_ticket = 'en_proceso'
+              # Paso 1 = en proceso
+        elif paso_actual == '2':
+            ticket.estado_ticket = 'en_proceso'
+        elif paso_actual == '3':
+            ticket.estado_ticket = 'en_proceso'
+            ticket.diagnostico = request.POST.get('diagnostico', ticket.diagnostico)
+            ticket.solucion_aplicada = request.POST.get('solucion_aplicada', ticket.solucion_aplicada)
+            ticket.observaciones_tecnicas = request.POST.get('observaciones_tecnicas', ticket.observaciones_tecnicas)
+            ticket.comentario_usuario = request.POST.get('comentario_usuario', ticket.comentario_usuario)
+        elif paso_actual == 'finalizar':
+            ticket.estado_ticket = 'completado'
+            ticket.fecha_cierre = timezone.now()
+            ticket.diagnostico = request.POST.get('diagnostico', ticket.diagnostico)
+            ticket.solucion_aplicada = request.POST.get('solucion_aplicada', ticket.solucion_aplicada)
+            ticket.observaciones_tecnicas = request.POST.get('observaciones_tecnicas', ticket.observaciones_tecnicas)
+            ticket.comentario_usuario = request.POST.get('comentario_usuario', ticket.comentario_usuario)
+
         ticket.save()
-        
-        messages.success(request, f"¡Ticket #{ticket_id} finalizado con éxito!")
-        
-    # El nombre de la URL de tu lista es 'mante_list' según tus logs
-    return redirect('mantenimiento:mante_list')
+        return JsonResponse({'message': 'Ticket actualizado correctamente', 'estado': ticket.estado_ticket})
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+
+
+
+
+

@@ -1,6 +1,6 @@
 {% load static %}
 {% block content %}
-<div class="tickets-container">
+<div class="tickets-container" id="tickets-container" data-url-atender="{% url 'mantenimiento:atender_ticket' %}">
     {% for ticket in tickets %}
     <div class="ticket" id="ticket-{{ ticket.id_ticket }}">
 
@@ -50,8 +50,8 @@
         <!-- Columna Derecha -->
         <div class="estado flex flex-col items-center p-4">
             <div class="flex flex-col gap-1 mb-1">
-                <button id="btnAtender"
-                    class="bg-blue-600 text-white px-0.5 py-0.5  rounded-lg hover:bg-blue-700 transition">
+                <button id="btnAtender" data-ticket-id="{{ ticket.id_ticket }}" data-estado="{{ ticket.estado_ticket }}"
+                    class="bg-blue-600 text-white px-0.5 py-0.5 rounded-lg hover:bg-blue-700 transition">
                     Atender
                 </button>
                 <button class="px-0.5 py-0.5 text-white bg-blue-500 rounded hover:bg-blue-600">Designar</button>
@@ -72,7 +72,7 @@
 </div>
 
 <!-- MODAL ATENDER -->
-<div id="modal" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden">
+<div id="modal" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50">
 
     <div class="bg-white rounded-xl w-96 p-6 shadow-lg relative">
 
@@ -82,56 +82,58 @@
 
         <!-- Pasos -->
         <div class="flex justify-between items-center mb-6">
-
             <div class="flex flex-col items-center step" data-step="1">
-                <div class="step-circle">1</div>
+                <div class="step-circle w-8 h-8 flex items-center justify-center rounded-full bg-gray-300">1</div>
                 <span class="mt-2 text-sm">Pendiente</span>
             </div>
 
             <div class="flex flex-col items-center step" data-step="2">
-                <div class="step-circle">2</div>
+                <div class="step-circle w-8 h-8 flex items-center justify-center rounded-full bg-gray-300">2</div>
                 <span class="mt-2 text-sm">En Proceso</span>
             </div>
 
             <div class="flex flex-col items-center step" data-step="3">
-                <div class="step-circle">3</div>
+                <div class="step-circle w-8 h-8 flex items-center justify-center rounded-full bg-gray-300">3</div>
                 <span class="mt-2 text-sm">Completado</span>
             </div>
-
         </div>
 
         <!-- Contenido -->
         <div class="modal-body min-h-[200px]">
 
             <div class="step-content" data-step="1">
-                <p class="text-gray-700">
-                    Ticket pendiente de atención.
-                </p>
+                <p class="text-gray-700">Ticket pendiente de atención.</p>
             </div>
 
             <div class="step-content hidden" data-step="2">
-                <p class="text-gray-700">
-                    Ticket en proceso de atención.
-                </p>
+                <p class="text-gray-700">Ticket en proceso de atención.</p>
             </div>
 
             <div class="step-content hidden" data-step="3">
-                <form class="space-y-3">
+                <form id="formAtender" class="space-y-4">
+                    {% csrf_token %}
                     <div>
-                        <label class="text-sm font-medium">Diagnóstico</label>
-                        <textarea class="w-full border rounded-md p-2"></textarea>
+                        <label class="block text-sm font-medium mb-1">Diagnóstico</label>
+                        <textarea
+                            class="diagnostico w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
                     </div>
+
                     <div>
-                        <label class="text-sm font-medium">Solución Aplicada</label>
-                        <textarea class="w-full border rounded-md p-2"></textarea>
+                        <label class="block text-sm font-medium mb-1">Solución Aplicada</label>
+                        <textarea
+                            class="solucion w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
                     </div>
+
                     <div>
-                        <label class="text-sm font-medium">Observaciones Técnicas</label>
-                        <textarea class="w-full border rounded-md p-2"></textarea>
+                        <label class="block text-sm font-medium mb-1">Observaciones Técnicas</label>
+                        <textarea
+                            class="observaciones w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
                     </div>
+
                     <div>
-                        <label class="text-sm font-medium">Comentario Usuario</label>
-                        <textarea class="w-full border rounded-md p-2"></textarea>
+                        <label class="block text-sm font-medium mb-1">Comentario Usuario</label>
+                        <textarea
+                            class="comentario w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
                     </div>
                 </form>
             </div>
@@ -140,7 +142,7 @@
 
         <!-- Botones -->
         <div class="flex justify-end mt-6 space-x-2">
-            <button class="bg-green-500 text-white px-4 py-2 rounded-md btn-next">
+            <button class="bg-green-500 text-white px-4 py-2 rounded-md btn-next hover:bg-green-600 transition">
                 Continuar
             </button>
         </div>
@@ -153,6 +155,8 @@
     </div>
 </div>
 
+
 <link rel="stylesheet" href="{% static 'css/mantenimiento/ticket.css' %}">
 <script src="{% static 'js/mantenimiento/atender.js' %}"></script>
+
 {% endblock %}
