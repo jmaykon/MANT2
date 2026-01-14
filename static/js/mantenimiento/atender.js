@@ -45,12 +45,6 @@
         showStep(currentStep);
     }
 
-    // =======================
-    // Guardar en cada paso
-    // =======================
-    // =======================
-    // Guardar en cada paso
-    // =======================
     async function guardarPaso(step) {
         const formEl = document.querySelector('.step-content[data-step="3"] form');
         const formData = new FormData();
@@ -109,16 +103,29 @@
         const ticketEl = document.getElementById(`ticket-${ticketId}`);
         const statusSpan = ticketEl.querySelector('.status span');
 
-        if (statusSpan && statusSpan.textContent.toLowerCase() === 'completado') {
+        let estadoActual = statusSpan ? statusSpan.textContent.toLowerCase() : 'pendiente';
+
+        // Ajustar el botón según el estado actual
+        if (estadoActual === 'completado') {
             btn.textContent = 'Completado';
             btn.disabled = true;
             btn.classList.add('bg-gray-400', 'cursor-not-allowed', 'hover:bg-gray-400');
+        } else if (estadoActual === 'en_proceso') {
+            btn.textContent = 'En Proceso';
+            // Ya no pregunta al hacer click, solo abre el modal
+            btn.addEventListener('click', () => {
+                currentTicketId = ticketId;
+                modal.classList.remove('hidden');
+                showStepByEstado(estadoActual);
+            });
+            return; // Salimos, no necesitamos preguntar
         }
 
+        // Si está pendiente, se mantiene la lógica de confirmación
         btn.addEventListener('click', async () => {
             currentTicketId = ticketId;
-            let estadoActual = statusSpan ? statusSpan.textContent.toLowerCase() : 'pendiente';
 
+            // Solo preguntar si está pendiente
             if (estadoActual === 'pendiente') {
                 const result = await Swal.fire({
                     title: '¿Atender ticket?',
@@ -131,11 +138,12 @@
 
                 if (!result.isConfirmed) return;
 
-                // Guardar paso 1 automáticamente
                 try {
                     const data = await guardarPaso('1');
-                    if (data.estado) actualizarVistaTicket(data.estado);
-                    estadoActual = data.estado;
+                    if (data.estado) {
+                        actualizarVistaTicket(data.estado);
+                        estadoActual = data.estado;
+                    }
                 } catch (err) {
                     console.error(err);
                     Swal.fire('Error', 'No se pudo iniciar la atención', 'error');
@@ -148,6 +156,7 @@
             showStepByEstado(estadoActual);
         });
     });
+
 
     // =======================
     // Botón siguiente paso
@@ -198,3 +207,6 @@
     });
 
 })();
+
+
+
