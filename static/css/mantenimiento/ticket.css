@@ -124,7 +124,10 @@
 }
 
 .status .documentando {
-  background-color: #66bb6a;
+  background-color: #b910b9;
+}
+.status .completado {
+  background-color: #0a409d;
 }
 
 .status .cancelado {

@@ -67,50 +67,69 @@ def mante_solicitar(request):
     return render(request, 'mantenimiento/mante_solicitar.html')
 
 # --- ESTA ES LA FUNCIÓN QUE CAUSABA EL ERROR ---
+from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
+from django.utils import timezone
+from django.contrib.auth.decorators import login_required
+from .models import Ticket, HistorialTicket, ComentarioTicket
+
 @login_required
 def atender_ticket(request):
-    if request.method == 'POST':
-        ticket_id = request.POST.get('id_ticket')
-        step = request.POST.get('step')
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Método no permitido'}, status=405)
 
-        ticket = get_object_or_404(Ticket, id_ticket=ticket_id)
+    ticket_id = request.POST.get('id_ticket')
+    step = int(request.POST.get('step', 1))
 
-        if step == '1':
-            ticket.estado_ticket = 'pendiente'
-            ticket.ultimo_paso = 1
+    ticket = get_object_or_404(Ticket, id_ticket=ticket_id)
 
-        elif step == '2':
-            ticket.estado_ticket = 'en_proceso'
-            ticket.ultimo_paso = 2
+    # Guardamos el estado anterior
+    estado_anterior = ticket.estado_ticket
 
-        elif step == '3':
-            ticket.estado_ticket = 'documentando'
-            ticket.ultimo_paso = 3
+    # Actualizamos campos según el paso
+    if step == 1:
+        ticket.estado_ticket = 'pendiente'
+    elif step == 2:
+        ticket.estado_ticket = 'en_proceso'
+    elif step == 3:
+        ticket.estado_ticket = 'documentando'
+        ticket.diagnostico = request.POST.get('diagnostico', '')
+        ticket.solucion_aplicada = request.POST.get('solucion_aplicada', '')
+        ticket.observaciones_tecnicas = request.POST.get('observaciones_tecnicas', '')
+        ticket.comentario_usuario = request.POST.get('comentario_usuario', '')
+    elif step >= 4:
+        ticket.estado_ticket = 'completado'
+        ticket.fecha_cierre = timezone.now()
+        ticket.diagnostico = request.POST.get('diagnostico', '')
+        ticket.solucion_aplicada = request.POST.get('solucion_aplicada', '')
+        ticket.observaciones_tecnicas = request.POST.get('observaciones_tecnicas', '')
+        ticket.comentario_usuario = request.POST.get('comentario_usuario', '')
 
-            ticket.diagnostico = request.POST.get('diagnostico', '')
-            ticket.solucion_aplicada = request.POST.get('solucion_aplicada', '')
-            ticket.observaciones_tecnicas = request.POST.get('observaciones_tecnicas', '')
-            ticket.comentario_usuario = request.POST.get('comentario_usuario', '')
+    # Guardamos el paso actual
+    ticket.ultimo_paso = step
+    ticket.save()
 
-        elif step == '4':
-            ticket.estado_ticket = 'completado'
-            ticket.ultimo_paso = 4
-            ticket.fecha_cierre = timezone.now()
+    # Guardamos historial
+    HistorialTicket.objects.create(
+        ticket=ticket,
+        estado_anterior=estado_anterior,
+        estado_nuevo=ticket.estado_ticket,
+        usuario=request.user
+    )
 
-            ticket.diagnostico = request.POST.get('diagnostico', '')
-            ticket.solucion_aplicada = request.POST.get('solucion_aplicada', '')
-            ticket.observaciones_tecnicas = request.POST.get('observaciones_tecnicas', '')
-            ticket.comentario_usuario = request.POST.get('comentario_usuario', '')            
+    # Guardamos comentario si existe
+    comentario_texto = request.POST.get('comentario_usuario', '').strip()
+    if comentario_texto:
+        ComentarioTicket.objects.create(
+            ticket=ticket,
+            usuario=request.user,
+            comentario=comentario_texto
+        )
 
-
-        ticket.save()
-
-        return JsonResponse({
-            'estado': ticket.estado_ticket,
-            'ultimo_paso': ticket.ultimo_paso
-        })
-
-    return JsonResponse({'error': 'Método no permitido'}, status=405)
+    return JsonResponse({
+        'estado': ticket.estado_ticket,
+        'ultimo_paso': ticket.ultimo_paso
+    })
 
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
