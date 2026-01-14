@@ -123,7 +123,7 @@
   background-color: #29b6f6;
 }
 
-.status .completado {
+.status .documentando {
   background-color: #66bb6a;
 }
 
@@ -380,15 +380,15 @@
 
 
 .step-active .step-circle {
-    background-color: #16a34a;
-    color: white;
+  background-color: #16a34a;
+  color: white;
 }
 
 .step-completed .step-circle {
-    background-color: #22c55e;
-    color: white;
+  background-color: #22c55e;
+  color: white;
 }
 
 .step-completed span {
-    color: #22c55e;
+  color: #22c55e;
 }

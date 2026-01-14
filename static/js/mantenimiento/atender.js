@@ -155,9 +155,13 @@
     btnAtenderList.forEach(btn => {
         btn.addEventListener('click', () => {
             const ticketId = btn.dataset.ticketId;
-            fetchTicketData(ticketId);
+            fetchTicketData(ticketId).then(() => {
+                // Mostrar paso correcto al abrir
+                showStep(currentStep);
+            });
         });
     });
+
 
     // ==========================
     // CONTINUAR / FINALIZAR
@@ -195,8 +199,24 @@
     });
 
     // ==========================
+    // FUNCIONES DE RESET
+    // ==========================
+    function resetModal() {
+        if (!modal) return;
+
+        // Restaurar último paso guardado
+        showStep(currentStep);
+
+    }
+    // ==========================
     // CERRAR MODAL
     // ==========================
-    btnCancel.addEventListener('click', () => modal.classList.add('hidden'));
-    btnCerrar.addEventListener('click', () => modal.classList.add('hidden'));
+    btnCancel.addEventListener('click', () => {
+        modal.classList.add('hidden');
+        resetModal(); // asegura que al reabrir no se vea “desalineado”
+    });
+    btnCerrar.addEventListener('click', () => {
+        modal.classList.add('hidden');
+        resetModal();
+    });
 })();
