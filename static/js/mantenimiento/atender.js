@@ -1,21 +1,26 @@
 (() => {
-    // =======================
-    // Variables
-    // =======================
+    // ==========================
+    // ELEMENTOS PRINCIPALES
+    // ==========================
     const ticketsContainer = document.getElementById('tickets-container');
     const URL_ATENDER_TICKET = ticketsContainer.dataset.urlAtender;
 
     const modal = document.getElementById('modal');
-    const btnCerrar = document.getElementById('btnCerrar');
-    const steps = document.querySelectorAll('.step');
-    const stepContents = document.querySelectorAll('.step-content');
-    const btnNext = document.querySelector('.btn-next');
+    const btnCerrar = modal.querySelector('#btnCerrar');
+    const btnCancel = modal.querySelector('.btn-cancel');
+    const btnNext = modal.querySelector('.btn-next');
+
+    const steps = modal.querySelectorAll('.step');
+    const stepContents = modal.querySelectorAll('.step-content');
 
     let currentStep = 1;
     let currentTicketId = null;
 
-    const btnAtenderList = document.querySelectorAll('#btnAtender');
+    const btnAtenderList = document.querySelectorAll('.btn-atender');
 
+    // ==========================
+    // CSRF
+    // ==========================
     function getCSRFToken() {
         const cookies = document.cookie.split(';');
         for (let cookie of cookies) {
@@ -25,156 +30,146 @@
         return '';
     }
 
+    // ==========================
+    // MOSTRAR PASO
+    // ==========================
     function showStep(step) {
-        steps.forEach(s => s.classList.remove('step-active'));
+        steps.forEach(s => s.classList.remove('step-active', 'step-completed'));
         stepContents.forEach(c => c.classList.add('hidden'));
 
-        const stepEl = document.querySelector(`.step[data-step="${step}"]`);
-        if (stepEl) stepEl.classList.add('step-active');
+        steps.forEach(s => {
+            const num = parseInt(s.dataset.step);
+            if (num < step) s.classList.add('step-completed');
+            else if (num === step) s.classList.add('step-active');
+        });
 
-        const contentEl = document.querySelector(`.step-content[data-step="${step}"]`);
-        if (contentEl) contentEl.classList.remove('hidden');
+        const content = modal.querySelector(`.step-content[data-step="${step}"]`);
+        if (content) content.classList.remove('hidden');
 
-        btnNext.textContent = step === 3 ? 'Finalizar' : 'Continuar';
+        btnNext.textContent = step === 3 ? 'Finalizar y Guardar' : 'Continuar y Guardar';
     }
 
-    function showStepByEstado(estado) {
-        if (estado === 'pendiente') currentStep = 1;
-        else if (estado === 'en_proceso') currentStep = 2;
-        else if (estado === 'completado') currentStep = 3;
+    // ==========================
+    // PRECARGAR DATOS
+    // ==========================
+    function precargarDatos(ticketData) {
+        if (!ticketData) return;
+
+        currentStep = ticketData.paso_actual || 1;
         showStep(currentStep);
+
+        const form = modal.querySelector('form');
+        if (!form) return;
+
+        form.querySelector('.diagnostico').value = ticketData.diagnostico || '';
+        form.querySelector('.solucion').value = ticketData.solucion || '';
+        form.querySelector('.observaciones').value = ticketData.observaciones || '';
+        form.querySelector('.comentario').value = ticketData.comentario || '';
     }
 
-    async function guardarPaso(step) {
-        const formEl = document.querySelector('.step-content[data-step="3"] form');
+    // ==========================
+    // OBTENER DATOS DEL TICKET
+    // ==========================
+    async function fetchTicketData(ticketId) {
+        try {
+            const response = await fetch(`/mantenimiento/get_ticket_data/${ticketId}/`);
+            if (!response.ok) throw new Error('Error al obtener datos del ticket');
+
+            const data = await response.json();
+
+            // Guardamos el ticket actual
+            currentTicketId = ticketId;
+
+            // Precargamos modal
+            precargarDatos(data);
+            modal.classList.remove('hidden');
+
+        } catch (error) {
+            console.error('Error al obtener el ticket:', error);
+            Swal.fire('Error', 'No se pudo cargar el ticket', 'error');
+        }
+    }
+
+    // ==========================
+    // GUARDAR ESTADO
+    // ==========================
+    async function guardarEstado(step) {
+        const form = modal.querySelector('form');
         const formData = new FormData();
 
         formData.append('id_ticket', currentTicketId);
         formData.append('step', step);
 
-        if (step === 3 || step === 'finalizar') {
-            const diagnosticoEl = formEl.querySelector('.diagnostico');
-            const solucionEl = formEl.querySelector('.solucion');
-            const observacionesEl = formEl.querySelector('.observaciones');
-            const comentarioEl = formEl.querySelector('.comentario');
-
-            formData.append('diagnostico', diagnosticoEl ? diagnosticoEl.value.trim() : '');
-            formData.append('solucion_aplicada', solucionEl ? solucionEl.value.trim() : '');
-            formData.append('observaciones_tecnicas', observacionesEl ? observacionesEl.value.trim() : '');
-            formData.append('comentario_usuario', comentarioEl ? comentarioEl.value.trim() : '');
+        if (step >= 3 && form) {
+            formData.append('diagnostico', form.querySelector('.diagnostico').value.trim());
+            formData.append('solucion_aplicada', form.querySelector('.solucion').value.trim());
+            formData.append('observaciones_tecnicas', form.querySelector('.observaciones').value.trim());
+            formData.append('comentario_usuario', form.querySelector('.comentario').value.trim());
         }
 
-        const response = await fetch(URL_ATENDER_TICKET, {
+        const res = await fetch(URL_ATENDER_TICKET, {
             method: 'POST',
             headers: { 'X-CSRFToken': getCSRFToken() },
             body: formData
         });
 
-        if (!response.ok) throw new Error('Error al guardar el ticket');
-        return await response.json();
+        if (!res.ok) throw new Error('Error al guardar estado');
+        return await res.json();
     }
 
-    function actualizarVistaTicket(estado) {
+    // ==========================
+    // ACTUALIZAR VISTA DEL TICKET
+    // ==========================
+    function actualizarVistaTicket(data) {
         const ticketEl = document.getElementById(`ticket-${currentTicketId}`);
         if (!ticketEl) return;
 
         const statusSpan = ticketEl.querySelector('.status span');
-        const btn = ticketEl.querySelector('#btnAtender');
+        const btn = ticketEl.querySelector('.btn-atender');
 
-        if (statusSpan && btn) {
-            if (estado === 'en_proceso') {
-                statusSpan.textContent = 'En Proceso';
-                statusSpan.className = 'en_proceso';
-            } else if (estado === 'completado') {
-                statusSpan.textContent = 'Completado';
-                statusSpan.className = 'completado';
-                btn.textContent = 'Completado';
-                btn.disabled = true;
-                btn.classList.add('bg-gray-400', 'cursor-not-allowed', 'hover:bg-gray-400');
-            }
-        }
-    }
+        const estados = {
+            pendiente: { text: 'Pendiente', class: 'pendiente' },
+            en_proceso: { text: 'En Proceso', class: 'en_proceso' },
+            documentando: { text: 'Documentando', class: 'documentando' },
+            completado: { text: 'Completado', class: 'completado' }
+        };
 
-    // =======================
-    // Click en btnAtender
-    // =======================
-    btnAtenderList.forEach(btn => {
-        const ticketId = btn.dataset.ticketId;
-        const ticketEl = document.getElementById(`ticket-${ticketId}`);
-        const statusSpan = ticketEl.querySelector('.status span');
+        const estado = estados[data.estado];
+        if (!estado) return;
 
-        let estadoActual = statusSpan ? statusSpan.textContent.toLowerCase() : 'pendiente';
+        statusSpan.textContent = estado.text;
+        statusSpan.className = estado.class;
 
-        // Ajustar el botón según el estado actual
-        if (estadoActual === 'completado') {
+        ticketEl.dataset.ultimoPaso = data.ultimo_paso;
+
+        if (data.estado === 'completado') {
             btn.textContent = 'Completado';
             btn.disabled = true;
             btn.classList.add('bg-gray-400', 'cursor-not-allowed', 'hover:bg-gray-400');
-        } else if (estadoActual === 'en_proceso') {
-            btn.textContent = 'En Proceso';
-            // Ya no pregunta al hacer click, solo abre el modal
-            btn.addEventListener('click', () => {
-                currentTicketId = ticketId;
-                modal.classList.remove('hidden');
-                showStepByEstado(estadoActual);
-            });
-            return; // Salimos, no necesitamos preguntar
         }
+    }
 
-        // Si está pendiente, se mantiene la lógica de confirmación
-        btn.addEventListener('click', async () => {
-            currentTicketId = ticketId;
-
-            // Solo preguntar si está pendiente
-            if (estadoActual === 'pendiente') {
-                const result = await Swal.fire({
-                    title: '¿Atender ticket?',
-                    text: 'Confirma iniciar el proceso',
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonText: 'Sí, atender',
-                    cancelButtonText: 'Cancelar'
-                });
-
-                if (!result.isConfirmed) return;
-
-                try {
-                    const data = await guardarPaso('1');
-                    if (data.estado) {
-                        actualizarVistaTicket(data.estado);
-                        estadoActual = data.estado;
-                    }
-                } catch (err) {
-                    console.error(err);
-                    Swal.fire('Error', 'No se pudo iniciar la atención', 'error');
-                    return;
-                }
-            }
-
-            // Abrir modal en paso correspondiente
-            modal.classList.remove('hidden');
-            showStepByEstado(estadoActual);
+    // ==========================
+    // CLICK ATENDER
+    // ==========================
+    btnAtenderList.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const ticketId = btn.dataset.ticketId;
+            fetchTicketData(ticketId);
         });
     });
 
-
-    // =======================
-    // Botón siguiente paso
-    // =======================
-    const stepInfo = {
-        1: { title: 'Atender Ticket pendiente', text: 'Ir a resolver Ticket?' },
-        2: { title: 'Ticket en Proceso', text: 'El ticket se está atendiendo, continuar?' },
-        3: { title: 'Finalizar Ticket', text: 'El ticket se marcará como Completado' }
-    };
-
+    // ==========================
+    // CONTINUAR / FINALIZAR
+    // ==========================
     btnNext.addEventListener('click', async () => {
-        const nextStep = currentStep < 3 ? currentStep + 1 : 'finalizar';
+        const stepToSave = currentStep + 1;
 
         try {
             const result = await Swal.fire({
-                title: stepInfo[currentStep].title,
-                text: stepInfo[currentStep].text,
-                icon: 'info',
+                title: 'Guardar Ticket',
+                text: '¿Deseas guardar los cambios?',
+                icon: 'question',
                 showCancelButton: true,
                 confirmButtonText: 'Guardar',
                 cancelButtonText: 'Cancelar'
@@ -182,31 +177,26 @@
 
             if (!result.isConfirmed) return;
 
-            const data = await guardarPaso(nextStep);
-            if (data.estado) actualizarVistaTicket(data.estado);
+            const data = await guardarEstado(stepToSave);
+            actualizarVistaTicket(data);
 
-            if (nextStep !== 'finalizar') {
+            if (currentStep < 3) {
                 currentStep++;
                 showStep(currentStep);
             } else {
                 Swal.fire('Éxito', 'Ticket completado', 'success');
                 modal.classList.add('hidden');
-                currentStep = 1;
-                showStep(currentStep);
             }
+
         } catch (err) {
             console.error(err);
-            Swal.fire('Error', 'No se pudo guardar el ticket', 'error');
+            Swal.fire('Error', 'No se pudo guardar el estado', 'error');
         }
     });
 
-    btnCerrar.addEventListener('click', () => {
-        modal.classList.add('hidden');
-        currentStep = 1;
-        showStep(currentStep);
-    });
-
+    // ==========================
+    // CERRAR MODAL
+    // ==========================
+    btnCancel.addEventListener('click', () => modal.classList.add('hidden'));
+    btnCerrar.addEventListener('click', () => modal.classList.add('hidden'));
 })();
-
-
-

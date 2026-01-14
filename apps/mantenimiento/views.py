@@ -71,36 +71,88 @@ def mante_solicitar(request):
 def atender_ticket(request):
     if request.method == 'POST':
         ticket_id = request.POST.get('id_ticket')
+        step = request.POST.get('step')
+
         ticket = get_object_or_404(Ticket, id_ticket=ticket_id)
 
-        paso_actual = request.POST.get('step')
+        if step == '1':
+            ticket.estado_ticket = 'pendiente'
+            ticket.ultimo_paso = 1
 
-        # Guardar estado y datos según paso
-        if paso_actual == '1':
+        elif step == '2':
             ticket.estado_ticket = 'en_proceso'
-              # Paso 1 = en proceso
-        elif paso_actual == '2':
-            ticket.estado_ticket = 'en_proceso'
-        elif paso_actual == '3':
-            ticket.estado_ticket = 'en_proceso'
-            ticket.diagnostico = request.POST.get('diagnostico', ticket.diagnostico)
-            ticket.solucion_aplicada = request.POST.get('solucion_aplicada', ticket.solucion_aplicada)
-            ticket.observaciones_tecnicas = request.POST.get('observaciones_tecnicas', ticket.observaciones_tecnicas)
-            ticket.comentario_usuario = request.POST.get('comentario_usuario', ticket.comentario_usuario)
-        elif paso_actual == 'finalizar':
+            ticket.ultimo_paso = 2
+
+        elif step == '3':
+            ticket.estado_ticket = 'documentando'
+            ticket.ultimo_paso = 3
+
+            ticket.diagnostico = request.POST.get('diagnostico', '')
+            ticket.solucion_aplicada = request.POST.get('solucion_aplicada', '')
+            ticket.observaciones_tecnicas = request.POST.get('observaciones_tecnicas', '')
+            ticket.comentario_usuario = request.POST.get('comentario_usuario', '')
+
+        elif step == '4':
             ticket.estado_ticket = 'completado'
+            ticket.ultimo_paso = 4
             ticket.fecha_cierre = timezone.now()
-            ticket.diagnostico = request.POST.get('diagnostico', ticket.diagnostico)
-            ticket.solucion_aplicada = request.POST.get('solucion_aplicada', ticket.solucion_aplicada)
-            ticket.observaciones_tecnicas = request.POST.get('observaciones_tecnicas', ticket.observaciones_tecnicas)
-            ticket.comentario_usuario = request.POST.get('comentario_usuario', ticket.comentario_usuario)
+
+            ticket.diagnostico = request.POST.get('diagnostico', '')
+            ticket.solucion_aplicada = request.POST.get('solucion_aplicada', '')
+            ticket.observaciones_tecnicas = request.POST.get('observaciones_tecnicas', '')
+            ticket.comentario_usuario = request.POST.get('comentario_usuario', '')            
+
 
         ticket.save()
-        return JsonResponse({'message': 'Ticket actualizado correctamente', 'estado': ticket.estado_ticket})
+
+        return JsonResponse({
+            'estado': ticket.estado_ticket,
+            'ultimo_paso': ticket.ultimo_paso
+        })
+
     return JsonResponse({'error': 'Método no permitido'}, status=405)
 
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from django.contrib.auth.decorators import login_required
 
+from django.http import JsonResponse
+from .models import Ticket  # Ajusta según tu modelo real
 
+# apps/mantenimiento/views.py
+from django.http import JsonResponse
+from .models import Ticket
 
+def get_ticket_data(request, ticket_id):
+    try:
+        ticket = Ticket.objects.get(id_ticket=ticket_id)
+
+        # Mapeo opcional: convertir estado_ticket a un "paso" numérico
+        estado_a_paso = {
+            'pendiente': 1,
+            'en_proceso': 2,
+            'documentando': 3,
+            'completado': 4,
+            'cancelado': 0,  # si quieres manejar cancelado como 0
+        }
+        paso_actual = estado_a_paso.get(ticket.estado_ticket, 1)
+
+        data = {
+            'id_ticket': ticket.id_ticket,
+            'descripcion': ticket.descripcion or '',
+            'diagnostico': ticket.diagnostico or '',
+            'solucion': ticket.solucion_aplicada or '',
+            'observaciones': ticket.observaciones_tecnicas or '',
+            'comentario': ticket.comentario_usuario or '',
+            'estado_ticket': ticket.estado_ticket,
+            'paso_actual': paso_actual  # reemplaza 'ultimo_paso'
+        }
+
+        return JsonResponse(data)
+
+    except Ticket.DoesNotExist:
+        return JsonResponse({'error': 'Ticket no encontrado'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
 

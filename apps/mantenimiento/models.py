@@ -39,6 +39,7 @@ class Ticket(models.Model):
     ESTADO_CHOICES = [
         ('pendiente', 'Pendiente'),
         ('en_proceso', 'En Proceso'),
+        ('documentando', 'Documentando'),
         ('completado', 'Completado'),
         ('cancelado', 'Cancelado'),
     ]

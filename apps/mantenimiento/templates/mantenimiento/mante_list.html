@@ -4,7 +4,10 @@
 <div class="tickets-container" id="tickets-container" data-url-atender="{% url 'mantenimiento:atender_ticket' %}">
 
     {% for ticket in tickets %}
-    <div class="ticket" id="ticket-{{ ticket.id_ticket }}">
+    <div class="ticket" id="ticket-{{ ticket.id_ticket }}" data-ultimo-paso="{{ ticket.ultimo_paso|default:1 }}"
+        data-diagnostico="{{ ticket.diagnostico|escapejs }}" data-solucion="{{ ticket.solucion_aplicada|escapejs }}"
+        data-observaciones="{{ ticket.observaciones_tecnicas|escapejs }}"
+        data-comentario="{{ ticket.comentario_usuario|escapejs }}">
 
         <!-- Columna Izquierda -->
         <div class="stub">
@@ -50,14 +53,11 @@
                     <div class="title">Prioridad:<br>
                         {% if ticket.prioridad == 'baja' %}
                         <span class="baja px-0.5 py-0.5">Baja</span>
-                        {% endif %}
-                        {% if ticket.prioridad == 'media' %}
+                        {% elif ticket.prioridad == 'media' %}
                         <span class="media px-0.5 py-0.5">Media</span>
-                        {% endif %}
-                        {% if ticket.prioridad == 'alta' %}
+                        {% elif ticket.prioridad == 'alta' %}
                         <span class="alta px-0.5 py-0.5">Alta</span>
-                        {% endif %}
-                        {% if ticket.prioridad == 'urgente' %}
+                        {% elif ticket.prioridad == 'urgente' %}
                         <span class="urgente px-0.5 py-0.5">Urgente</span>
                         {% endif %}
                     </div>
@@ -68,10 +68,7 @@
         <!-- Columna Derecha -->
         <div class="estado flex flex-col items-center p-4">
             <div class="flex flex-col gap-1 mb-1">
-                <button id="btnAtender" data-ticket-id="{{ ticket.id_ticket }}" data-estado="{{ ticket.estado_ticket }}"
-                    class="bg-green-600 text-white px-0.5 py-0.5 rounded hover:bg-green-700 transition">
-                    Atender
-                </button>
+                <button class="btn-atender" data-ticket-id="{{ ticket.id_ticket }}">Atender</button>
 
                 <button class="px-0.5 py-0.5 text-white bg-blue-500 rounded hover:bg-blue-600">
                     Designar
@@ -86,17 +83,17 @@
                 Estado:<br>
                 {% if ticket.estado_ticket == 'Pendiente' %}
                 <span class="pendiente">Pendiente</span>
-                {% endif %}
-                {% if ticket.estado_ticket == 'en_proceso' %}
+                {% elif ticket.estado_ticket == 'en_proceso' %}
                 <span class="en_proceso">En Proceso</span>
-                {% endif %}
-                {% if ticket.estado_ticket == 'completado' %}
+                {% elif ticket.estado_ticket == 'documentando' %}
+                <span class="documentando">Documentando</span>
+                {% elif ticket.estado_ticket == 'completado' %}
                 <span class="completado">Completado</span>
-                {% endif %}
-                {% if ticket.estado_ticket == 'cancelado' %}
+                {% elif ticket.estado_ticket == 'cancelado' %}
                 <span class="cancelado">Cancelado</span>
                 {% endif %}
             </div>
+
         </div>
     </div>
 
@@ -125,9 +122,6 @@
     </div>
 </div>
 
-
-
-
 <!-- MODAL ATENDER -->
 <div id="modal" class="overflow-auto fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50">
     <div class="bg-white rounded-xl w-96 p-6 shadow-lg relative">
@@ -150,7 +144,7 @@
 
             <div class="flex flex-col items-center step" data-step="3">
                 <div class="step-circle w-8 h-8 flex items-center justify-center rounded-full bg-gray-300">3</div>
-                <span class="mt-2 text-sm">Completado</span>
+                <span class="mt-2 text-sm">Documentando</span>
             </div>
         </div>
 
@@ -167,26 +161,35 @@
             <div class="step-content hidden" data-step="3">
                 <form id="formAtender" class="space-y-4">
                     {% csrf_token %}
-                    <textarea class="diagnostico w-full border rounded-md p-2"></textarea>
-                    <textarea class="solucion w-full border rounded-md p-2"></textarea>
-                    <textarea class="observaciones w-full border rounded-md p-2"></textarea>
-                    <textarea class="comentario w-full border rounded-md p-2"></textarea>
+                    <textarea class="diagnostico w-full border rounded-md p-2" placeholder="Diagnóstico"></textarea>
+                    <textarea class="solucion w-full border rounded-md p-2" placeholder="Solución aplicada"></textarea>
+                    <textarea class="observaciones w-full border rounded-md p-2"
+                        placeholder="Observaciones técnicas"></textarea>
+                    <textarea class="comentario w-full border rounded-md p-2"
+                        placeholder="Comentario usuario"></textarea>
                 </form>
             </div>
         </div>
 
-        <div class="flex justify-end mt-6">
+        <!-- Botones dentro del modal -->
+        <div class="flex justify-end mt-6 space-x-2">
+            <button class="bg-gray-500 text-white px-4 py-2 rounded-md btn-cancel">
+                Cancelar
+            </button>
             <button class="bg-green-500 text-white px-4 py-2 rounded-md btn-next">
                 Continuar
             </button>
         </div>
 
+        <!-- Cerrar modal -->
         <button id="btnCerrar" class="absolute top-3 right-3 text-xl">&times;</button>
     </div>
 </div>
 
+
 <link rel="stylesheet" href="{% static 'css/mantenimiento/ticket.css' %}">
 <script src="{% static 'js/mantenimiento/atender.js' %}"></script>
 <script src="{% static 'js/mantenimiento/modal_descripcion.js' %}"></script>
+
 
 {% endblock %}

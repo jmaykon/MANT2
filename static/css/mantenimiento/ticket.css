@@ -377,3 +377,18 @@
   border-color: #22c55e;
   color: white;
 }
+
+
+.step-active .step-circle {
+    background-color: #16a34a;
+    color: white;
+}
+
+.step-completed .step-circle {
+    background-color: #22c55e;
+    color: white;
+}
+
+.step-completed span {
+    color: #22c55e;
+}
